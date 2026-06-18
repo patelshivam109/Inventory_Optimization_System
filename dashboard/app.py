@@ -244,7 +244,7 @@ page = st.sidebar.radio(
 # PAGE 1: EXECUTIVE OVERVIEW
 # ==========================================
 if "Executive Overview" in page or page == "🏠 Executive Overview":
-    st.header("📈 Executive Overview")
+    st.header(" Executive Overview")
     
     if df_demand is None or df_inventory is None or df_pricing is None:
         st.error("🚨 Missing processed data. Please run your preprocessing pipelines first.")
@@ -343,21 +343,8 @@ elif page == "Demand Forecasting":
         actual_col = get_col(df_demand, ['Sales Quantity', 'Actual Sales Quantity', 'sales_quantity'])
         forecast_col = get_col(df_demand, ['Forecasted Demand', 'forecasted_demand'])
 
-        # Filters
-        st.sidebar.subheader("Demand Controls")
-        unique_prods = ['All'] + list(df_demand[prod_col].dropna().astype(str).unique()) if prod_col else ['All']
-        unique_stores = ['All'] + list(df_demand[store_col].dropna().astype(str).unique()) if store_col else ['All']
-        selected_prod = st.sidebar.selectbox("Select Product ID", unique_prods)
-        selected_store = st.sidebar.selectbox("Select Store ID", unique_stores)
-
+        # Filters simplified: show full demand dataset by default
         filtered_demand = df_demand.copy()
-        if prod_col and selected_prod != 'All':
-            filtered_demand = filtered_demand[filtered_demand[prod_col].astype(str) == str(selected_prod)]
-        if store_col and selected_store != 'All':
-            filtered_demand = filtered_demand[filtered_demand[store_col].astype(str) == str(selected_store)]
-
-        if filtered_demand.empty:
-            st.warning("No demand records matched the selected product/store combination.")
 
         # Model Performance Metrics
         st.subheader("Model Performance Evaluation Metrics")
@@ -386,7 +373,7 @@ elif page == "Demand Forecasting":
                     
                     # Display actual vs predicted comparison details
                     st.markdown("---")
-                    st.subheader("📋 Actual vs Predicted Results")
+                    st.subheader(" Actual vs Predicted Results")
                     detail_display = eval_df[[actual_col, 'Model Predictions']].copy()
                     detail_display = detail_display.rename(columns={
                         actual_col: 'Actual',
@@ -518,7 +505,7 @@ elif page == "Demand Forecasting":
 # ==========================================
 # PAGE 3: DEMAND PREDICTION
 elif page == "Demand Prediction":
-    st.header("🔮 Demand Prediction")
+    st.header(" Demand Prediction")
 
     if df_demand is None:
         st.error("Could not load demand dataset. Please check your data source.")
@@ -627,14 +614,8 @@ elif "Inventory Optimization" in page or page == "📦 Inventory Optimization":
         # Data Cleaning
         df_inventory = df_inventory.fillna({s_level: 0, f_dem: 0, saf_stk: 0, rec_re: 0, inv_stat: 'Normal'})
 
-        # Filter
-        st.sidebar.subheader("Inventory Selection Engine")
-        statuses = ['All', 'Normal', 'Reorder Required', 'Stockout', 'Overstock']
-        selected_status = st.sidebar.selectbox("Filter by Inventory Status Category", statuses)
-
+        # Filter simplified: display full inventory by default
         filtered_inv = df_inventory.copy()
-        if selected_status != 'All':
-            filtered_inv = filtered_inv[filtered_inv[inv_stat].str.lower().strip() == selected_status.lower().strip()]
 
         # Highlighting Protocol for Critical Rows
         def highlight_critical(row):
@@ -801,7 +782,7 @@ with footer_col2:
     st.caption("• Pricing Optimization")
 
 with footer_col3:
-    st.markdown("### 📈 Data")
+    st.markdown("###  Data")
     st.caption(f"• Demand: {df_demand.shape[0] if df_demand is not None else 0:,} records")
     st.caption(f"• Inventory: {df_inventory.shape[0] if df_inventory is not None else 0:,} records")
     st.caption(f"• Pricing: {df_pricing.shape[0] if df_pricing is not None else 0:,} records")
