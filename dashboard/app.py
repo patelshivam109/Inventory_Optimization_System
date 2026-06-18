@@ -32,9 +32,9 @@ st.set_page_config(
 st.title("📊 AI Powered Retail Inventory Optimization System")
 st.markdown("---")
 
-# ==========================================
+
 # CACHED DATA & MODEL LOADING FUNCTIONS
-# ==========================================
+
 @st.cache_data
 def load_demand_data():
     try:
@@ -109,9 +109,9 @@ def get_col(df, target_names, default=""):
                 return c
     return default
 
-# ==========================================
+
 # MODEL PREDICTION FUNCTION
-# ==========================================
+
 def prepare_features_for_model(df):
     """
     Prepare features for demand forecasting model
@@ -209,9 +209,9 @@ df_inventory = load_inventory_data()
 df_pricing = load_pricing_data()
 model_lr = load_ml_model()
 
-# ==========================================
+
 # SIDEBAR NAVIGATION
-# ==========================================
+
 st.sidebar.title("Navigation Menu")
 
 # Add a debug info expander in sidebar
@@ -240,9 +240,9 @@ page = st.sidebar.radio(
     ]
 )
 
-# ==========================================
+
 # PAGE 1: EXECUTIVE OVERVIEW
-# ==========================================
+
 if "Executive Overview" in page or page == "🏠 Executive Overview":
     st.header(" Executive Overview")
     
@@ -328,9 +328,9 @@ if "Executive Overview" in page or page == "🏠 Executive Overview":
                                          color='Forecasted Demand', color_continuous_scale='Viridis')
                 st.plotly_chart(fig_top_forecast, use_container_width=True)
 
-# ==========================================
+
 # PAGE 2: DEMAND FORECASTING
-# ==========================================
+
 elif page == "Demand Forecasting":
     st.header("Demand Forecasting & ML Performance")
     
@@ -502,7 +502,7 @@ elif page == "Demand Forecasting":
             display_saved_figure("demand", "demand_trend_distribution.png", "Long-Term Demand Trends Distribution")
             display_saved_figure("demand", "Top 10 Slow Moving Products.png", "Top 10 Slow Moving Products Profile")
 
-# ==========================================
+
 # PAGE 3: DEMAND PREDICTION
 elif page == "Demand Prediction":
     st.header(" Demand Prediction")
@@ -594,7 +594,7 @@ elif page == "Demand Prediction":
                     else:
                         st.error("Prediction could not be generated. Please verify the input values and model compatibility.")
 
-# ==========================================
+
 # PAGE 4: INVENTORY OPTIMIZATION
 
 elif "Inventory Optimization" in page or page == "📦 Inventory Optimization":
@@ -654,9 +654,9 @@ elif "Inventory Optimization" in page or page == "📦 Inventory Optimization":
             display_saved_figure("inventory", "stock_level_distribution.png", "Static Stock Level Baseline Distribution")
             display_saved_figure("inventory", "reorder_point_distribution.png", "Calculated Reorder Point Range Analysis")
 
-# ==========================================
+
 # PAGE 4: PRICING OPTIMIZATION
-# ==========================================
+
 elif "Pricing Optimization" in page or page == " Pricing Optimization":
     st.header(" Pricing Intelligence & Elasticity Engine")
     
@@ -694,9 +694,9 @@ elif "Pricing Optimization" in page or page == " Pricing Optimization":
         with img_col3:
             display_saved_figure("pricing", "price_vs_competitor_price.png", "Direct Price vs Competitor Pricing Alignment")
 
-# ==========================================
+
 # PAGE 5: DATA EXPLORER
-# ==========================================
+
 elif "Data Explorer" in page or page == "🗂️ Data Explorer":
     st.header("🗂️ Interactive Cross-Functional Data Explorer")
     
