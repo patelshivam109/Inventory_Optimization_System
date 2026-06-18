@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# ==========================================
-# DYNAMIC PATH RESOLUTION (Fixes File Not Found errors)
-# ==========================================
+
 # __file__ is dashboard/app.py
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Points to 'dashboard'
 ROOT_DIR = os.path.dirname(CURRENT_DIR)                  # Points to project root
@@ -21,9 +19,9 @@ PRICING_DATA_PATH = os.path.join(ROOT_DIR, "data", "processed", "pricing_optimiz
 MODEL_PATH = os.path.join(ROOT_DIR, "models", "demand_forecasting2_model.pkl")
 FIGURES_DIR = os.path.join(ROOT_DIR, "reports", "figures")
 
-# ==========================================
+
 # GENERAL CONFIGURATION
-# ==========================================
+
 st.set_page_config(
     page_title="AI Powered Retail Inventory Optimization System",
     layout="wide",
@@ -41,13 +39,13 @@ st.markdown("---")
 def load_demand_data():
     try:
         if not os.path.exists(DEMAND_DATA_PATH):
-            st.error(f"❌ Demand data not found at: {DEMAND_DATA_PATH}")
+            st.error("❌ Demand dataset not found. Please check your data directory.")
             return None
         df = pd.read_csv(DEMAND_DATA_PATH)
         for col in ['Date', 'date']:
             if col in df.columns:
                 df[col] = pd.to_datetime(df[col])
-        st.sidebar.success(f"✅ Demand data loaded: {len(df)} rows")
+        st.sidebar.success(f" Demand data loaded: {len(df)} rows")
         return df
     except Exception as e:
         st.error(f"Error loading demand data: {str(e)}")
@@ -57,10 +55,10 @@ def load_demand_data():
 def load_inventory_data():
     try:
         if not os.path.exists(INVENTORY_DATA_PATH):
-            st.error(f"❌ Inventory data not found at: {INVENTORY_DATA_PATH}")
+            st.error("❌ Inventory dataset not found. Please check your data directory.")
             return None
         df = pd.read_csv(INVENTORY_DATA_PATH)
-        st.sidebar.success(f"✅ Inventory data loaded: {len(df)} rows")
+        st.sidebar.success(f" Inventory data loaded: {len(df)} rows")
         return df
     except Exception as e:
         st.error(f"Error loading inventory data: {str(e)}")
@@ -70,10 +68,10 @@ def load_inventory_data():
 def load_pricing_data():
     try:
         if not os.path.exists(PRICING_DATA_PATH):
-            st.error(f"❌ Pricing data not found at: {PRICING_DATA_PATH}")
+            st.error("❌ Pricing dataset not found. Please check your data directory.")
             return None
         df = pd.read_csv(PRICING_DATA_PATH)
-        st.sidebar.success(f"✅ Pricing data loaded: {len(df)} rows")
+        st.sidebar.success(f" Pricing data loaded: {len(df)} rows")
         return df
     except Exception as e:
         st.error(f"Error loading pricing data: {str(e)}")
@@ -83,11 +81,11 @@ def load_pricing_data():
 def load_ml_model():
     try:
         if not os.path.exists(MODEL_PATH):
-            st.warning(f"⚠️ Model not found at: {MODEL_PATH}")
+            st.warning("⚠️ ML model not found. Please verify the model asset is present.")
             return None
         # Using joblib as requested for the production model
         model = joblib.load(MODEL_PATH)
-        st.sidebar.success(f"✅ ML Model loaded successfully")
+        st.sidebar.success(f" ML Model loaded successfully")
         return model
     except Exception as e:
         st.error(f"Error loading ML model: {str(e)}")
@@ -218,37 +216,27 @@ st.sidebar.title("Navigation Menu")
 
 # Add a debug info expander in sidebar
 with st.sidebar.expander("🔧 System Diagnostics", expanded=False):
-    st.markdown("**File Paths:**")
-    st.caption(f"📁 Root: `{ROOT_DIR}`")
-    st.caption(f"📄 Demand: `{DEMAND_DATA_PATH}`")
-    st.caption(f"📄 Inventory: `{INVENTORY_DATA_PATH}`")
-    st.caption(f"📄 Pricing: `{PRICING_DATA_PATH}`")
-    st.caption(f"🤖 Model: `{MODEL_PATH}`")
-    
-    st.markdown("**Load Status:**")
-    st.caption(f"✓ Demand CSV exists: {os.path.exists(DEMAND_DATA_PATH)}")
-    st.caption(f"✓ Inventory CSV exists: {os.path.exists(INVENTORY_DATA_PATH)}")
-    st.caption(f"✓ Pricing CSV exists: {os.path.exists(PRICING_DATA_PATH)}")
-    st.caption(f"✓ Model PKL exists: {os.path.exists(MODEL_PATH)}")
-    
+    st.markdown("**Data Load Status:**")
+    st.caption(f"✓ Demand dataset loaded: {df_demand is not None}")
+    st.caption(f"✓ Inventory dataset loaded: {df_inventory is not None}")
+    st.caption(f"✓ Pricing dataset loaded: {df_pricing is not None}")
+    st.caption(f"✓ Machine learning model loaded: {model_lr is not None}")
     if df_demand is not None:
-        st.caption(f"✓ Demand shape: {df_demand.shape}")
-        st.caption(f"  Columns: {', '.join(df_demand.columns[:5].tolist())}...")
+        st.caption(f"• Demand rows: {df_demand.shape[0]:,}")
     if df_inventory is not None:
-        st.caption(f"✓ Inventory shape: {df_inventory.shape}")
-        st.caption(f"  Columns: {', '.join(df_inventory.columns[:5].tolist())}...")
+        st.caption(f"• Inventory rows: {df_inventory.shape[0]:,}")
     if df_pricing is not None:
-        st.caption(f"✓ Pricing shape: {df_pricing.shape}")
-        st.caption(f"  Columns: {', '.join(df_pricing.columns[:5].tolist())}...")
+        st.caption(f"• Pricing rows: {df_pricing.shape[0]:,}")
 
 page = st.sidebar.radio(
     "Select Dashboard Page:",
     [
-        "🏠 Executive Overview",
-        "🔮 Demand Forecasting",
-        "📦 Inventory Optimization",
-        "💵 Pricing Optimization",
-        "🗂️ Data Explorer"
+        "Executive Overview",
+        "Demand Forecasting",
+        "Demand Prediction",
+        "Inventory Optimization",
+        "Pricing Optimization",
+        "Data Explorer"
     ]
 )
 
@@ -259,8 +247,7 @@ if "Executive Overview" in page or page == "🏠 Executive Overview":
     st.header("📈 Executive Overview")
     
     if df_demand is None or df_inventory is None or df_pricing is None:
-        st.error("🚨 Missing data files in `data/processed/`. Please run your preprocessing pipelines first.")
-        st.info(f"Looking for files in: {os.path.join(ROOT_DIR, 'data', 'processed')}")
+        st.error("🚨 Missing processed data. Please run your preprocessing pipelines first.")
     else:
         prod_col_inv = get_col(df_inventory, ['Product ID', 'product_id'])
         store_col_inv = get_col(df_inventory, ['Store ID', 'store_id'])
@@ -286,17 +273,17 @@ if "Executive Overview" in page or page == "🏠 Executive Overview":
         kpi1, kpi2, kpi3, kpi4, kpi5, kpi6 = st.columns(6)
         
         with kpi1:
-            st.metric("📦 Total Products", f"{total_products:,}")
+            st.metric(" Total Products", f"{total_products:,}")
         with kpi2:
-            st.metric("🏪 Total Stores", f"{total_stores:,}")
+            st.metric(" Total Stores", f"{total_stores:,}")
         with kpi3:
-            st.metric("📈 Forecasted Demand", f"{total_forecasted_demand:,.0f}")
+            st.metric(" Forecasted Demand", f"{total_forecasted_demand:,.0f}")
         with kpi4:
-            st.metric("⚠️ Low Stock Items", f"{low_stock_count:,}", delta=f"{low_stock_count}", delta_color="inverse")
+            st.metric(" Low Stock Items", f"{low_stock_count:,}", delta=f"{low_stock_count}", delta_color="inverse")
         with kpi5:
-            st.metric("🚫 Stockout Risk", f"{stockout_count:,}", delta=f"{stockout_count}", delta_color="inverse")
+            st.metric(" Stockout Risk", f"{stockout_count:,}", delta=f"{stockout_count}", delta_color="inverse")
         with kpi6:
-            st.metric("💰 Price Recommendations", f"{pricing_recommendations:,}")
+            st.metric(" Price Recommendations", f"{pricing_recommendations:,}")
 
         st.markdown("---")
         st.subheader("Executive Distributions")
@@ -344,11 +331,11 @@ if "Executive Overview" in page or page == "🏠 Executive Overview":
 # ==========================================
 # PAGE 2: DEMAND FORECASTING
 # ==========================================
-elif "Demand Forecasting" in page or page == "🔮 Demand Forecasting":
-    st.header("🔮 Demand Forecasting & ML Performance")
+elif page == "Demand Forecasting":
+    st.header("Demand Forecasting & ML Performance")
     
     if df_demand is None:
-        st.error(f"Could not load demand dataset from {DEMAND_DATA_PATH}")
+        st.error("Could not load demand dataset. Please check your data source.")
     else:
         prod_col = get_col(df_demand, ['Product ID', 'product_id'])
         store_col = get_col(df_demand, ['Store ID', 'store_id'])
@@ -358,23 +345,26 @@ elif "Demand Forecasting" in page or page == "🔮 Demand Forecasting":
 
         # Filters
         st.sidebar.subheader("Demand Controls")
-        unique_prods = ['All'] + list(df_demand[prod_col].dropna().unique()) if prod_col else ['All']
-        unique_stores = ['All'] + list(df_demand[store_col].dropna().unique()) if store_col else ['All']
+        unique_prods = ['All'] + list(df_demand[prod_col].dropna().astype(str).unique()) if prod_col else ['All']
+        unique_stores = ['All'] + list(df_demand[store_col].dropna().astype(str).unique()) if store_col else ['All']
         selected_prod = st.sidebar.selectbox("Select Product ID", unique_prods)
         selected_store = st.sidebar.selectbox("Select Store ID", unique_stores)
 
         filtered_demand = df_demand.copy()
-        if selected_prod != 'All':
-            filtered_demand = filtered_demand[filtered_demand[prod_col] == selected_prod]
-        if selected_store != 'All':
-            filtered_demand = filtered_demand[filtered_demand[store_col] == selected_store]
+        if prod_col and selected_prod != 'All':
+            filtered_demand = filtered_demand[filtered_demand[prod_col].astype(str) == str(selected_prod)]
+        if store_col and selected_store != 'All':
+            filtered_demand = filtered_demand[filtered_demand[store_col].astype(str) == str(selected_store)]
+
+        if filtered_demand.empty:
+            st.warning("No demand records matched the selected product/store combination.")
 
         # Model Performance Metrics
         st.subheader("Model Performance Evaluation Metrics")
         
         # Make predictions using the loaded model
         if model_lr is not None:
-            st.info("🤖 Using **demand_forecasting2_model.pkl** for live predictions")
+            st.info(" Using **demand_forecasting2_model.pkl** for live predictions")
             model_predictions = make_model_predictions(filtered_demand, model_lr)
             
             if model_predictions is not None:
@@ -393,6 +383,27 @@ elif "Demand Forecasting" in page or page == "🔮 Demand Forecasting":
                     col_mae.metric("Model MAE", f"{mean_absolute_error(y_true, y_pred_model):.2f}")
                     col_rmse.metric("Model RMSE", f"{np.sqrt(mean_squared_error(y_true, y_pred_model)):.2f}")
                     col_r2.metric("Model R² Score", f"{r2_score(y_true, y_pred_model):.4f}")
+                    
+                    # Display actual vs predicted comparison details
+                    st.markdown("---")
+                    st.subheader("📋 Actual vs Predicted Results")
+                    detail_display = eval_df[[actual_col, 'Model Predictions']].copy()
+                    detail_display = detail_display.rename(columns={
+                        actual_col: 'Actual',
+                        'Model Predictions': 'Predicted'
+                    })
+                    if forecast_col is not None and forecast_col in eval_df.columns:
+                        detail_display['Forecasted (CSV)'] = eval_df[forecast_col]
+                    detail_display['Error'] = (detail_display['Actual'] - detail_display['Predicted']).abs()
+                    st.dataframe(
+                        detail_display.head(20).style.format({
+                            'Actual': '{:.0f}',
+                            'Predicted': '{:.2f}',
+                            'Forecasted (CSV)': '{:.2f}',
+                            'Error': '{:.2f}'
+                        }),
+                        use_container_width=True
+                    )
                     
                     # Comparison with CSV forecasts if available
                     if y_pred_csv is not None:
@@ -504,125 +515,106 @@ elif "Demand Forecasting" in page or page == "🔮 Demand Forecasting":
             display_saved_figure("demand", "demand_trend_distribution.png", "Long-Term Demand Trends Distribution")
             display_saved_figure("demand", "Top 10 Slow Moving Products.png", "Top 10 Slow Moving Products Profile")
 
-        # Future Demand Prediction Section (Simplified Inputs)
-        st.markdown("---")
-        st.subheader("🔮 Future Demand Prediction - Single Product Forecast")
+# ==========================================
+# PAGE 3: DEMAND PREDICTION
+elif page == "Demand Prediction":
+    st.header("🔮 Demand Prediction")
 
-        if model_lr is not None:
-            # Helper to compute sensible defaults from historical data
-            def compute_defaults(product, store):
-                defaults = {}
-                try:
-                    subset = pd.DataFrame()
-                    if prod_col and store_col and product in df_demand[prod_col].values and store in df_demand[store_col].values:
-                        subset = df_demand[(df_demand[prod_col] == product) & (df_demand[store_col] == store)]
-                    if subset.empty and prod_col and product in df_demand[prod_col].values:
-                        subset = df_demand[df_demand[prod_col] == product]
-                    if subset.empty:
-                        subset = df_demand
+    if df_demand is None:
+        st.error("Could not load demand dataset. Please check your data source.")
+    elif model_lr is None:
+        st.error("Could not load the forecasting model. Please verify the model file.")
+    else:
+        prod_col = get_col(df_demand, ['Product ID', 'product_id'])
+        store_col = get_col(df_demand, ['Store ID', 'store_id'])
+        date_col = get_col(df_demand, ['Date', 'date'])
+        actual_col = get_col(df_demand, ['Sales Quantity', 'Actual Sales Quantity', 'sales_quantity'])
+        price_col = get_col(df_demand, ['Price', 'price'])
+        promo_col = get_col(df_demand, ['Promotions', 'promotions'])
+        season_col = get_col(df_demand, ['Seasonality Factors', 'seasonality_factors'])
+        external_col = get_col(df_demand, ['External Factors', 'external_factors'])
+        trend_col = get_col(df_demand, ['Demand Trend', 'demand_trend'])
+        segment_col = get_col(df_demand, ['Customer Segments', 'customer_segments'])
 
-                    # Numeric price default: median price for the subset or overall median
-                    price_col_name = get_col(df_demand, ['Price', 'price'])
-                    if price_col_name and price_col_name in subset.columns:
-                        defaults['price'] = float(subset[price_col_name].median())
+        if not prod_col or not store_col or not price_col:
+            st.error("Required demand input columns are missing. Please verify the dataset schema.")
+        else:
+            st.markdown("Use this page to generate a clean, focused demand forecast for a specific product and store.")
+
+            product_options = sorted(df_demand[prod_col].dropna().astype(str).unique())
+            selected_product = st.selectbox("Product ID", ["All"] + product_options)
+
+            store_subset = df_demand if selected_product == "All" else df_demand[df_demand[prod_col].astype(str) == selected_product]
+            store_options = sorted(store_subset[store_col].dropna().astype(str).unique())
+            selected_store = st.selectbox("Store ID", ["All"] + store_options)
+
+            if selected_product == "All" or selected_store == "All":
+                st.info("Select both Product ID and Store ID to generate a forecast.")
+            else:
+                def compute_defaults(product, store):
+                    defaults = {}
+                    try:
+                        subset = df_demand[(df_demand[prod_col].astype(str) == str(product)) & (df_demand[store_col].astype(str) == str(store))]
+                        if subset.empty:
+                            subset = df_demand[df_demand[prod_col].astype(str) == str(product)]
+                        if subset.empty:
+                            subset = df_demand
+
+                        defaults['price'] = float(subset[price_col].median()) if price_col in subset.columns else 0.0
+                        defaults['promotions'] = subset[promo_col].mode().iloc[0] if promo_col and promo_col in subset.columns and not subset[promo_col].dropna().empty else None
+                        defaults['seasonality_factors'] = subset[season_col].mode().iloc[0] if season_col and season_col in subset.columns and not subset[season_col].dropna().empty else None
+                        defaults['external_factors'] = subset[external_col].mode().iloc[0] if external_col and external_col in subset.columns and not subset[external_col].dropna().empty else None
+                        defaults['demand_trend'] = subset[trend_col].mode().iloc[0] if trend_col and trend_col in subset.columns and not subset[trend_col].dropna().empty else None
+                        defaults['customer_segments'] = subset[segment_col].mode().iloc[0] if segment_col and segment_col in subset.columns and not subset[segment_col].dropna().empty else None
+                    except Exception:
+                        defaults = {'price': 0.0, 'promotions': None, 'seasonality_factors': None, 'external_factors': None, 'demand_trend': None, 'customer_segments': None}
+                    return defaults
+
+                defaults = compute_defaults(selected_product, selected_store)
+                price_input = st.number_input("Price", min_value=0.0, value=float(defaults.get('price', 0.0)), step=0.5)
+
+                with st.expander("Advanced demand feature values"):
+                    pred_promo = st.selectbox("Promotions", sorted(df_demand[promo_col].dropna().astype(str).unique()) if promo_col and promo_col in df_demand.columns else [defaults.get('promotions')])
+                    pred_season = st.selectbox("Seasonality", sorted(df_demand[season_col].dropna().astype(str).unique()) if season_col and season_col in df_demand.columns else [defaults.get('seasonality_factors')])
+                    pred_external = st.selectbox("External Factors", sorted(df_demand[external_col].dropna().astype(str).unique()) if external_col and external_col in df_demand.columns else [defaults.get('external_factors')])
+                    pred_trend = st.selectbox("Demand Trend", sorted(df_demand[trend_col].dropna().astype(str).unique()) if trend_col and trend_col in df_demand.columns else [defaults.get('demand_trend')])
+                    pred_segment = st.selectbox("Customer Segment", sorted(df_demand[segment_col].dropna().astype(str).unique()) if segment_col and segment_col in df_demand.columns else [defaults.get('customer_segments')])
+
+                if st.button("Generate Prediction"):
+                    pred_input = pd.DataFrame({
+                        prod_col: [selected_product],
+                        store_col: [selected_store],
+                        price_col: [price_input],
+                        promo_col: [pred_promo],
+                        season_col: [pred_season],
+                        external_col: [pred_external],
+                        trend_col: [pred_trend],
+                        segment_col: [pred_segment],
+                    })
+
+                    prediction = make_model_predictions(pred_input, model_lr)
+                    if prediction is not None and len(prediction) > 0:
+                        st.success(f"Predicted Demand: **{prediction[0]:.2f} units**")
+                        st.markdown("---")
+                        st.subheader("Input Summary")
+                        st.dataframe(pred_input.T, use_container_width=True)
+                        actual_subset = df_demand[(df_demand[prod_col].astype(str) == selected_product) & (df_demand[store_col].astype(str) == selected_store)]
+                        if not actual_subset.empty and actual_col in actual_subset.columns:
+                            st.subheader("Recent Actual Demand")
+                            actual_recent = actual_subset.sort_values(by=date_col if date_col in actual_subset.columns else actual_col, ascending=False).head(5)
+                            actual_recent_display = actual_recent[[date_col, actual_col]].rename(columns={date_col: 'Date', actual_col: 'Actual Demand'}) if date_col in actual_subset.columns else actual_recent[[actual_col]].rename(columns={actual_col:'Actual Demand'})
+                            st.dataframe(actual_recent_display, use_container_width=True)
                     else:
-                        defaults['price'] = 0.0
-
-                    # Categorical defaults: mode of subset or global mode
-                    for col_key, names in [('promotions', ['Promotions', 'promotions']),
-                                           ('season', ['Seasonality Factors', 'seasonality_factors']),
-                                           ('external', ['External Factors', 'external_factors']),
-                                           ('trend', ['Demand Trend', 'demand_trend']),
-                                           ('segment', ['Customer Segments', 'customer_segments'])]:
-                        colname = get_col(df_demand, names)
-                        if colname and colname in subset.columns and not subset[colname].dropna().empty:
-                            defaults[col_key] = subset[colname].mode().iloc[0]
-                        elif colname and colname in df_demand.columns and not df_demand[colname].dropna().empty:
-                            defaults[col_key] = df_demand[colname].mode().iloc[0]
-                        else:
-                            defaults[col_key] = None
-
-                except Exception:
-                    defaults = {'price': 0.0, 'promotions': None, 'season': None, 'external': None, 'trend': None, 'segment': None}
-                return defaults
-
-            prod_options = df_demand[prod_col].dropna().unique() if prod_col else []
-            store_options = df_demand[store_col].dropna().unique() if store_col else []
-
-            pred_product = st.selectbox("Select Product ID for Prediction", prod_options)
-            pred_store = st.selectbox("Select Store ID for Prediction", store_options)
-
-            # compute defaults based on selection
-            defaults = compute_defaults(pred_product, pred_store)
-
-            # Basic inputs (minimal): price only (auto-filled), advanced in expander
-            price_input = st.number_input("Price (editable, auto-filled)", min_value=0.0, value=float(defaults.get('price', 0.0)), step=0.5)
-
-            with st.expander("Advanced options (auto-filled) -- expand to override"):
-                promo_col_name = get_col(df_demand, ['Promotions', 'promotions'])
-                season_col_name = get_col(df_demand, ['Seasonality Factors', 'seasonality_factors'])
-                external_col_name = get_col(df_demand, ['External Factors', 'external_factors'])
-                trend_col_name = get_col(df_demand, ['Demand Trend', 'demand_trend'])
-                segment_col_name = get_col(df_demand, ['Customer Segments', 'customer_segments'])
-
-                pred_promo = st.selectbox("Promotion Status", df_demand[promo_col_name].dropna().unique().tolist() if promo_col_name and promo_col_name in df_demand.columns else ['Yes','No'])
-                pred_season = st.selectbox("Seasonality", df_demand[season_col_name].dropna().unique().tolist() if season_col_name and season_col_name in df_demand.columns else [defaults.get('season')])
-                pred_external = st.selectbox("External Factors", df_demand[external_col_name].dropna().unique().tolist() if external_col_name and external_col_name in df_demand.columns else [defaults.get('external')])
-                pred_trend = st.selectbox("Demand Trend", df_demand[trend_col_name].dropna().unique().tolist() if trend_col_name and trend_col_name in df_demand.columns else [defaults.get('trend')])
-                pred_segment = st.selectbox("Customer Segment", df_demand[segment_col_name].dropna().unique().tolist() if segment_col_name and segment_col_name in df_demand.columns else [defaults.get('segment')])
-
-            # If user did not interact with advanced, set variables from defaults
-            try:
-                pred_promo
-            except NameError:
-                pred_promo = defaults.get('promotions')
-            try:
-                pred_season
-            except NameError:
-                pred_season = defaults.get('season')
-            try:
-                pred_external
-            except NameError:
-                pred_external = defaults.get('external')
-            try:
-                pred_trend
-            except NameError:
-                pred_trend = defaults.get('trend')
-            try:
-                pred_segment
-            except NameError:
-                pred_segment = defaults.get('segment')
-
-            if st.button("🚀 Generate Prediction", use_container_width=True):
-                # Build prediction input row using resolved values
-                pred_input = pd.DataFrame({
-                    prod_col: [pred_product],
-                    store_col: [pred_store],
-                    get_col(df_demand, ['Price', 'price']): [price_input],
-                    get_col(df_demand, ['Promotions', 'promotions']): [pred_promo],
-                    get_col(df_demand, ['Seasonality Factors', 'seasonality_factors']): [pred_season],
-                    get_col(df_demand, ['External Factors', 'external_factors']): [pred_external],
-                    get_col(df_demand, ['Demand Trend', 'demand_trend']): [pred_trend],
-                    get_col(df_demand, ['Customer Segments', 'customer_segments']): [pred_segment],
-                })
-
-                prediction = make_model_predictions(pred_input, model_lr)
-                if prediction is not None and len(prediction) > 0:
-                    st.success(f"✅ Predicted Demand: **{prediction[0]:.2f} units**")
-                    with st.expander("📋 Prediction Context"):
-                        st.write("**Resolved Input Parameters (auto-filled where possible):**")
-                        st.write(pred_input.T)
-                else:
-                    st.error("Could not generate prediction. Please check your input values or open the diagnostics to see model feature names.")
+                        st.error("Prediction could not be generated. Please verify the input values and model compatibility.")
 
 # ==========================================
-# PAGE 3: INVENTORY OPTIMIZATION
-# ==========================================
+# PAGE 4: INVENTORY OPTIMIZATION
+
 elif "Inventory Optimization" in page or page == "📦 Inventory Optimization":
     st.header("📦 Inventory Optimization & Safety Stock Strategy")
     
     if df_inventory is None:
-        st.error(f"Could not load data from {INVENTORY_DATA_PATH}")
+        st.error("Could not load inventory dataset. Please check your data source.")
     else:
         p_id = get_col(df_inventory, ['Product ID', 'product_id'])
         s_id = get_col(df_inventory, ['Store ID', 'store_id'])
@@ -684,11 +676,11 @@ elif "Inventory Optimization" in page or page == "📦 Inventory Optimization":
 # ==========================================
 # PAGE 4: PRICING OPTIMIZATION
 # ==========================================
-elif "Pricing Optimization" in page or page == "💵 Pricing Optimization":
-    st.header("💵 Pricing Intelligence & Elasticity Engine")
+elif "Pricing Optimization" in page or page == " Pricing Optimization":
+    st.header(" Pricing Intelligence & Elasticity Engine")
     
     if df_pricing is None:
-        st.error(f"Pricing metrics profiles are unavailable at: {PRICING_DATA_PATH}")
+        st.error("Pricing metrics profiles are unavailable. Please check your data source.")
     else:
         p_id = get_col(df_pricing, ['Product ID', 'product_id'])
         base_pr = get_col(df_pricing, ['Price', 'price'])
@@ -740,9 +732,9 @@ elif "Data Explorer" in page or page == "🗂️ Data Explorer":
         active_df, file_ref_lbl = df_pricing.copy(), PRICING_DATA_PATH
 
     if active_df is None:
-        st.error(f"Dataset '{file_ref_lbl}' could not be loaded.")
+        st.error("Dataset could not be loaded. Please check the selected source.")
     else:
-        st.markdown(f"📊 **Dataset:** {file_ref_lbl.split('/')[-1]} | **Rows:** {active_df.shape[0]:,} | **Columns:** {active_df.shape[1]}")
+        st.markdown(f"📊 **Dataset:** {os.path.basename(file_ref_lbl)} | **Rows:** {active_df.shape[0]:,} | **Columns:** {active_df.shape[1]}")
         
         # Search and Filter Options
         st.subheader("🔍 Search & Filter Options")
@@ -789,9 +781,9 @@ elif "Data Explorer" in page or page == "🗂️ Data Explorer":
             use_container_width=True
         )
 
-# ==========================================
+
 # GLOBAL FOOTER SYSTEM
-# ==========================================
+
 st.markdown("---")
 
 footer_col1, footer_col2, footer_col3 = st.columns(3)
@@ -816,6 +808,6 @@ with footer_col3:
 
 st.markdown("---")
 st.caption("""
-🤖 **AI Powered Retail Inventory Optimization System** | Demand Forecasting • Inventory Optimization • Pricing Intelligence  
+ **AI Powered Retail Inventory Optimization System** | Demand Forecasting • Inventory Optimization • Pricing Intelligence  
 *Built with Streamlit, Plotly, and Scikit-learn for intelligent retail decision-making.*
 """)
